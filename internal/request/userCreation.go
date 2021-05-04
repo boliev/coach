@@ -1,6 +1,6 @@
 package request
 
 type UserCreation struct {
-	email    string `json:"name" binding:"required"`
-	password string `json:"password" binding:"required"`
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required"`
 }
