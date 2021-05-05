@@ -30,3 +30,14 @@ func (u User) Create(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"result": fmt.Sprintf("User %s was created. %s", request.Email, res)})
 }
+
+func (u User) List(c *gin.Context) {
+	repository := repository.NewUserMongoRepository()
+
+	users, _ := repository.FindAll()
+
+	c.JSON(http.StatusOK, response.UsersList{
+		Data:  users,
+		Count: len(users),
+	})
+}

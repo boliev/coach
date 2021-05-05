@@ -16,6 +16,7 @@ func (app App) Start() {
 		{
 			controller := &controller.User{}
 			users.POST("/", controller.Create)
+			users.GET("/", controller.List)
 		}
 	}
 	r.Run()
