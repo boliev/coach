@@ -17,6 +17,8 @@ func (app App) Start() {
 			controller := &controller.User{}
 			users.POST("/", controller.Create)
 			users.GET("/", controller.List)
+			users.GET("/:id", controller.One)
+			users.DELETE("/:id", controller.Delete)
 		}
 	}
 	r.Run()

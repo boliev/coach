@@ -41,3 +41,19 @@ func (u User) List(c *gin.Context) {
 		Count: len(users),
 	})
 }
+
+func (u User) One(c *gin.Context) {
+	repository := repository.NewUserMongoRepository()
+	id := c.Param("id")
+	user, _ := repository.Find(id)
+
+	c.JSON(http.StatusOK, user)
+}
+
+func (u User) Delete(c *gin.Context) {
+	repository := repository.NewUserMongoRepository()
+	id := c.Param("id")
+	repository.Delete(id)
+
+	c.JSON(http.StatusOK, "deleted")
+}

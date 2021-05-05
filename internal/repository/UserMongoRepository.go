@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -71,4 +72,31 @@ func (r UserMongoRepository) FindAll() ([]*domain.User, error) {
 	defer cursor.Close(ctx)
 
 	return r.cursorToDomain(cursor, ctx), nil
+}
+
+func (r UserMongoRepository) Find(id string) (*domain.User, error) {
+	ctx, cancel := r.context()
+	defer cancel()
+
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, errors.New("there is no such user")
+	}
+
+	var result bson.D
+	r.collection.FindOne(ctx, bson.D{{"_id", objectId}}).Decode(&result)
+
+	return r.bsonToDomain(result.Map()), nil
+}
+
+func (r UserMongoRepository) Delete(id string) {
+	ctx, cancel := r.context()
+	defer cancel()
+
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return
+	}
+
+	r.collection.DeleteOne(ctx, bson.D{{"_id", objectId}})
 }
