@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/boliev/coach/internal/repository"
+	"github.com/boliev/coach/internal/domain"
 	"github.com/boliev/coach/internal/request"
 	"github.com/boliev/coach/internal/response"
 	"github.com/gin-gonic/gin"
 )
 
 type User struct {
+	UserRepository domain.UserRepository
 }
 
 func (u User) Create(c *gin.Context) {
@@ -19,10 +20,10 @@ func (u User) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response.BadRequest("bad request"))
 		return
 	}
-	repository := repository.NewUserMongoRepository()
+	// repository := repository.NewUserMongoRepository()
 	user := request.ToDomain()
 
-	res, err := repository.Create(user)
+	res, err := u.UserRepository.Create(user)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, response.BadRequest(err.Error()))
 		return
@@ -32,28 +33,21 @@ func (u User) Create(c *gin.Context) {
 }
 
 func (u User) List(c *gin.Context) {
-	repository := repository.NewUserMongoRepository()
+	users, _ := u.UserRepository.FindAll()
 
-	users, _ := repository.FindAll()
-
-	c.JSON(http.StatusOK, response.UsersList{
-		Data:  users,
-		Count: len(users),
-	})
+	c.JSON(http.StatusOK, response.CreateUsersListFromDomain(users))
 }
 
 func (u User) One(c *gin.Context) {
-	repository := repository.NewUserMongoRepository()
 	id := c.Param("id")
-	user, _ := repository.Find(id)
+	user, _ := u.UserRepository.Find(id)
 
-	c.JSON(http.StatusOK, user)
+	c.JSON(http.StatusOK, response.CreateUserFromDomain(user))
 }
 
 func (u User) Delete(c *gin.Context) {
-	repository := repository.NewUserMongoRepository()
 	id := c.Param("id")
-	repository.Delete(id)
+	u.UserRepository.Delete(id)
 
 	c.JSON(http.StatusOK, "deleted")
 }

@@ -2,6 +2,7 @@ package coach
 
 import (
 	"github.com/boliev/coach/internal/controller"
+	"github.com/boliev/coach/internal/repository"
 	"github.com/gin-gonic/gin"
 )
 
@@ -9,16 +10,20 @@ type App struct {
 }
 
 func (app App) Start() {
+	userRepository := repository.NewUserMongoRepository()
 	r := gin.New()
 	v1 := r.Group("/v1")
 	{
 		users := v1.Group("/users")
 		{
-			controller := &controller.User{}
-			users.POST("/", controller.Create)
-			users.GET("/", controller.List)
-			users.GET("/:id", controller.One)
-			users.DELETE("/:id", controller.Delete)
+			userController := &controller.User{
+				UserRepository: userRepository,
+			}
+
+			users.POST("/", userController.Create)
+			users.GET("/", userController.List)
+			users.GET("/:id", userController.One)
+			users.DELETE("/:id", userController.Delete)
 		}
 	}
 	r.Run()
