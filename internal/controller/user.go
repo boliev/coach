@@ -20,10 +20,10 @@ func (u User) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response.BadRequest("bad request"))
 		return
 	}
-	// repository := repository.NewUserMongoRepository()
-	user := request.ToDomain()
 
-	res, err := u.UserRepository.Create(user)
+	userCreationRequest := request.ToDomain()
+
+	res, err := u.UserRepository.Create(userCreationRequest)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, response.BadRequest(err.Error()))
 		return
