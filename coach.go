@@ -10,7 +10,9 @@ type App struct {
 }
 
 func (app App) Start() {
-	userRepository := mongo.NewUserMongoRepository()
+	mongoClient := mongo.NewClient("mongodb://coach:123456@localhost:27017")
+	userRepository := mongo.NewUserMongoRepository(mongoClient)
+
 	r := gin.New()
 	v1 := r.Group("/v1")
 	{

@@ -9,6 +9,6 @@ type UserService struct {
 	repository repository.UserRepository
 }
 
-func (u UserService) Create(user domain.User) {
+func (u UserService) Create(user *domain.User) {
 	u.repository.Create(user)
 }

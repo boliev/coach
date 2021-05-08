@@ -17,8 +17,7 @@ type UserMongoRepository struct {
 	collection *mongo.Collection
 }
 
-func NewUserMongoRepository() *UserMongoRepository {
-	client := NewClient()
+func NewUserMongoRepository(client *mongo.Client) *UserMongoRepository {
 	collection := client.Database("coach").Collection("user")
 	return &UserMongoRepository{
 		client:     client,
@@ -83,7 +82,7 @@ func (r UserMongoRepository) Find(id string) (*domain.User, error) {
 	}
 
 	var result bson.D
-	r.collection.FindOne(ctx, bson.D{{"_id", objectId}}).Decode(&result)
+	r.collection.FindOne(ctx, bson.D{{Key: "_id", Value: objectId}}).Decode(&result)
 
 	return r.bsonToDomain(result.Map()), nil
 }
@@ -97,5 +96,5 @@ func (r UserMongoRepository) Delete(id string) {
 		return
 	}
 
-	r.collection.DeleteOne(ctx, bson.D{{"_id", objectId}})
+	r.collection.DeleteOne(ctx, bson.D{{Key: "_id", Value: objectId}})
 }
