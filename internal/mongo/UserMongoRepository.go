@@ -17,16 +17,12 @@ type UserMongoRepository struct {
 	collection *mongo.Collection
 }
 
-func NewUserMongoRepository(client *mongo.Client) *UserMongoRepository {
-	collection := client.Database("coach").Collection("user")
+func NewUserMongoRepository(client *mongo.Client, db string, coll string) *UserMongoRepository {
+	collection := client.Database(db).Collection(coll)
 	return &UserMongoRepository{
 		client:     client,
 		collection: collection,
 	}
-}
-
-func (u UserMongoRepository) context() (context.Context, context.CancelFunc) {
-	return context.WithTimeout(context.Background(), 5*time.Second)
 }
 
 func (u UserMongoRepository) bsonToDomain(mapUser map[string]interface{}) *domain.User {
@@ -52,7 +48,7 @@ func (u UserMongoRepository) cursorToDomain(cursor *mongo.Cursor, ctx context.Co
 }
 
 func (r UserMongoRepository) Create(user *domain.User) (interface{}, error) {
-	ctx, cancel := r.context()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	res, err := r.collection.InsertOne(ctx, user)
@@ -60,7 +56,7 @@ func (r UserMongoRepository) Create(user *domain.User) (interface{}, error) {
 }
 
 func (r UserMongoRepository) FindAll() ([]*domain.User, error) {
-	ctx, cancel := r.context()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	cursor, err := r.collection.Find(ctx, bson.D{})
@@ -73,7 +69,7 @@ func (r UserMongoRepository) FindAll() ([]*domain.User, error) {
 }
 
 func (r UserMongoRepository) Find(id string) (*domain.User, error) {
-	ctx, cancel := r.context()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	objectId, err := primitive.ObjectIDFromHex(id)
@@ -88,7 +84,7 @@ func (r UserMongoRepository) Find(id string) (*domain.User, error) {
 }
 
 func (r UserMongoRepository) Delete(id string) {
-	ctx, cancel := r.context()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	objectId, err := primitive.ObjectIDFromHex(id)
