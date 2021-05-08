@@ -1,4 +1,4 @@
-package mongo_factory
+package mongo
 
 import (
 	"context"

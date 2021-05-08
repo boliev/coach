@@ -1,4 +1,4 @@
-package repository
+package mongo
 
 import (
 	"context"
@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/boliev/coach/internal/domain"
-	"github.com/boliev/coach/pkg/mongo_factory"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -19,7 +18,7 @@ type UserMongoRepository struct {
 }
 
 func NewUserMongoRepository() *UserMongoRepository {
-	client := mongo_factory.NewClient()
+	client := NewClient()
 	collection := client.Database("coach").Collection("user")
 	return &UserMongoRepository{
 		client:     client,

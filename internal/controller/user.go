@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/boliev/coach/internal/domain"
+	"github.com/boliev/coach/internal/repository"
 	"github.com/boliev/coach/internal/request"
 	"github.com/boliev/coach/internal/response"
 	"github.com/gin-gonic/gin"
 )
 
 type User struct {
-	UserRepository domain.UserRepository
+	UserRepository repository.UserRepository
 }
 
 func (u User) Create(c *gin.Context) {
