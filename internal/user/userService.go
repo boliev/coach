@@ -1,6 +1,8 @@
 package user
 
 import (
+	"errors"
+
 	"github.com/boliev/coach/internal/domain"
 	"github.com/boliev/coach/internal/repository"
 	"github.com/boliev/coach/internal/request"
@@ -34,4 +36,18 @@ func (u UserService) Create(request *request.UserCreation) (*domain.User, error)
 	}
 
 	return user, nil
+}
+
+func (u UserService) Auth(request *request.UserAuth) (*domain.UserAuth, error) {
+	user, err := u.repository.FindByEmail(request.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	check := password.Check(user.Password, request.Password)
+	if !check {
+		return nil, errors.New("wrong password")
+	}
+
+	return &domain.UserAuth{Token: "Congrats!"}, nil
 }

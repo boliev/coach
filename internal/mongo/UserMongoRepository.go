@@ -80,6 +80,24 @@ func (r UserMongoRepository) Find(id string) (*domain.User, error) {
 	var result bson.D
 	r.collection.FindOne(ctx, bson.D{{Key: "_id", Value: objectId}}).Decode(&result)
 
+	if result == nil {
+		return nil, errors.New("user not found")
+	}
+
+	return r.bsonToDomain(result.Map()), nil
+}
+
+func (r UserMongoRepository) FindByEmail(email string) (*domain.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var result bson.D
+	r.collection.FindOne(ctx, bson.D{{Key: "email", Value: email}}).Decode(&result)
+
+	if result == nil {
+		return nil, errors.New("user not found")
+	}
+
 	return r.bsonToDomain(result.Map()), nil
 }
 

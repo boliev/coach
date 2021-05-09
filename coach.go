@@ -32,6 +32,7 @@ func (app App) Start() {
 			}
 
 			users.POST("/", userController.Create)
+			users.POST("/auth", userController.Auth)
 			users.GET("/", userController.List)
 			users.GET("/:id", userController.One)
 			users.DELETE("/:id", userController.Delete)

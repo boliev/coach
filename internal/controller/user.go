@@ -32,6 +32,22 @@ func (u User) Create(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"result": fmt.Sprintf("User %s was created.", user.Email)})
 }
 
+func (u User) Auth(c *gin.Context) {
+	var request request.UserAuth
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, response.BadRequest("bad request"))
+		return
+	}
+
+	auth, err := u.UserService.Auth(&request)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, response.BadRequest("wrong email or password"))
+		return
+	}
+
+	c.JSON(http.StatusOK, response.CreateUserAuthFromDomain(auth))
+}
+
 func (u User) List(c *gin.Context) {
 	users, _ := u.UserRepository.FindAll()
 
