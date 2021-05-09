@@ -7,11 +7,13 @@ import (
 	"github.com/boliev/coach/internal/repository"
 	"github.com/boliev/coach/internal/request"
 	"github.com/boliev/coach/internal/response"
+	"github.com/boliev/coach/internal/user"
 	"github.com/gin-gonic/gin"
 )
 
 type User struct {
 	UserRepository repository.UserRepository
+	UserService    *user.UserService
 }
 
 func (u User) Create(c *gin.Context) {
@@ -21,15 +23,13 @@ func (u User) Create(c *gin.Context) {
 		return
 	}
 
-	userCreationRequest := request.ToDomain()
-
-	res, err := u.UserRepository.Create(userCreationRequest)
+	user, err := u.UserService.Create(&request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, response.BadRequest(err.Error()))
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"result": fmt.Sprintf("User %s was created. %s", request.Email, res)})
+	c.JSON(http.StatusOK, gin.H{"result": fmt.Sprintf("User %s was created.", user.Email)})
 }
 
 func (u User) List(c *gin.Context) {

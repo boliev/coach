@@ -3,6 +3,7 @@ package coach
 import (
 	"github.com/boliev/coach/internal/controller"
 	"github.com/boliev/coach/internal/mongo"
+	"github.com/boliev/coach/internal/user"
 	"github.com/boliev/coach/pkg/config"
 	"github.com/gin-gonic/gin"
 )
@@ -18,6 +19,7 @@ func (app App) Start() {
 		config.GetString("main_database"),
 		config.GetString("users_collection"),
 	)
+	userService := user.CreateUserService(userRepository)
 
 	r := gin.New()
 	v1 := r.Group("/v1")
@@ -26,6 +28,7 @@ func (app App) Start() {
 		{
 			userController := &controller.User{
 				UserRepository: userRepository,
+				UserService:    userService,
 			}
 
 			users.POST("/", userController.Create)
