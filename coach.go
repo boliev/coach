@@ -19,7 +19,8 @@ func (app App) Start() {
 		config.GetString("main_database"),
 		config.GetString("users_collection"),
 	)
-	userService := user.CreateUserService(userRepository)
+	jwtCreator := user.NewJwtCreator(config.GetString("jwt_secret"), config.GetInt("jwt_days"))
+	userService := user.CreateUserService(userRepository, jwtCreator)
 
 	r := gin.New()
 	v1 := r.Group("/v1")

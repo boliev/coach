@@ -40,3 +40,7 @@ func NewConfig() (*Config, error) {
 func (c Config) GetString(key string) string {
 	return viper.GetString(key)
 }
+
+func (c Config) GetInt(key string) int {
+	return viper.GetInt(key)
+}

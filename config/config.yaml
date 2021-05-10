@@ -1,2 +1,3 @@
 main_database: coach
 users_collection: user
+jwt_days: 7 
