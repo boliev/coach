@@ -1,6 +1,7 @@
 package user
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/boliev/coach/internal/domain"
@@ -34,4 +35,26 @@ func (j JwtCreator) Create(id string) (*domain.UserAuth, error) {
 		Token:     token,
 		ExpiresAt: expiresAt,
 	}, nil
+}
+
+func (j JwtCreator) Check(tokenString string) (string, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		// Don't forget to validate the alg is what you expect:
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+
+		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
+		return []byte(j.Secret), nil
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return claims["Id"].(string), nil
+	} else {
+		return "", err
+	}
 }

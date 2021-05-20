@@ -2,6 +2,7 @@ package coach
 
 import (
 	"github.com/boliev/coach/internal/controller"
+	"github.com/boliev/coach/internal/middleware"
 	"github.com/boliev/coach/internal/mongo"
 	"github.com/boliev/coach/internal/user"
 	"github.com/boliev/coach/pkg/config"
@@ -21,6 +22,7 @@ func (app App) Start() {
 	)
 	jwtCreator := user.NewJwtCreator(config.GetString("jwt_secret"), config.GetInt("jwt_days"))
 	userService := user.CreateUserService(userRepository, jwtCreator)
+	authHandler := middleware.NewAuthHandler(jwtCreator)
 
 	r := gin.New()
 	v1 := r.Group("/v1")
@@ -34,7 +36,7 @@ func (app App) Start() {
 
 			users.POST("/", userController.Create)
 			users.POST("/auth", userController.Auth)
-			users.GET("/", userController.List)
+			users.GET("/", authHandler.Handle, userController.List)
 			users.GET("/:id", userController.One)
 			users.DELETE("/:id", userController.Delete)
 		}
