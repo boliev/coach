@@ -9,16 +9,16 @@ import (
 )
 
 type AuthHandler struct {
-	JwtChecker *user.JwtCreator
+	JwtChecker user.JwtParser
 }
 
 type authHeader struct {
 	Token string `header:"Authorization"`
 }
 
-func NewAuthHandler(JwtChecker *user.JwtCreator) *AuthHandler {
+func NewAuthHandler(JwtParser user.JwtParser) *AuthHandler {
 	return &AuthHandler{
-		JwtChecker: JwtChecker,
+		JwtChecker: JwtParser,
 	}
 }
 
@@ -35,7 +35,7 @@ func (a AuthHandler) Handle(c *gin.Context) {
 
 	idTokenHeader := strings.Split(header.Token, "Bearer ")
 
-	userId, err := a.JwtChecker.Check(idTokenHeader[1])
+	userId, err := a.JwtChecker.Parse(idTokenHeader[1])
 
 	if err != nil {
 		c.AbortWithStatus(http.StatusForbidden)

@@ -13,10 +13,10 @@ import (
 
 type UserService struct {
 	repository repository.UserRepository
-	jwtCreator *JwtCreator
+	jwtCreator JwtCreator
 }
 
-func CreateUserService(repository repository.UserRepository, jwtCreator *JwtCreator) *UserService {
+func CreateUserService(repository repository.UserRepository, jwtCreator JwtCreator) *UserService {
 	return &UserService{
 		repository: repository,
 		jwtCreator: jwtCreator,
