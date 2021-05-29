@@ -6,6 +6,7 @@ import (
 	"github.com/boliev/coach/internal/mongo"
 	"github.com/boliev/coach/internal/user"
 	"github.com/boliev/coach/pkg/config"
+	"github.com/boliev/coach/pkg/jwt_client"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,9 +21,10 @@ func (app App) Start() {
 		config.GetString("main_database"),
 		config.GetString("users_collection"),
 	)
-	jwtCreator := user.NewJwtCreator(config.GetString("jwt_secret"), config.GetInt("jwt_days"))
-	userService := user.CreateUserService(userRepository, jwtCreator)
-	authHandler := middleware.NewAuthHandler(jwtCreator)
+	jwtClient := jwt_client.NewJwtClientImpl(config.GetString("jwt_secret"))
+	jwtService := user.NewJwtService(config.GetString("jwt_secret"), config.GetInt("jwt_days"), jwtClient)
+	userService := user.CreateUserService(userRepository, jwtService)
+	authHandler := middleware.NewAuthHandler(jwtService)
 
 	r := gin.New()
 	v1 := r.Group("/v1")

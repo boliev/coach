@@ -5,26 +5,29 @@ import (
 	"time"
 
 	"github.com/boliev/coach/internal/domain"
+	"github.com/boliev/coach/pkg/jwt_client"
 	"github.com/dgrijalva/jwt-go"
 )
 
 type JwtService struct {
 	Secret    string
 	TokenDays int
+	Client    jwt_client.JwtClient
 }
 
-func NewJwtCreator(secret string, tokenDays int) *JwtService {
+func NewJwtService(secret string, tokenDays int, jwtClient jwt_client.JwtClient) *JwtService {
 	return &JwtService{
 		Secret:    secret,
 		TokenDays: tokenDays,
+		Client:    jwtClient,
 	}
 }
 
 func (j JwtService) Create(id string) (*domain.UserAuth, error) {
 	expiresAt := time.Now().UTC().AddDate(0, 0, j.TokenDays)
 	claims := &jwt.MapClaims{
-		"Id":        id,
-		"expiresAt": expiresAt,
+		"id":        id,
+		"expiresAt": expiresAt.Unix(),
 	}
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(j.Secret))
 	if err != nil {
@@ -38,23 +41,21 @@ func (j JwtService) Create(id string) (*domain.UserAuth, error) {
 }
 
 func (j JwtService) Parse(tokenString string) (string, error) {
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		// Don't forget to validate the alg is what you expect:
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-
-		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
-		return []byte(j.Secret), nil
-	})
+	token, err := j.Client.Parse(tokenString)
 
 	if err != nil {
 		return "", err
 	}
 
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		return claims["Id"].(string), nil
+	tm := time.Unix(int64(token.Claims["expiresAt"].(float64)), 0)
+
+	if tm.Before(time.Now()) {
+		return "", fmt.Errorf("token expired")
+	}
+
+	if token.Valid {
+		return token.Claims["id"].(string), nil
 	} else {
-		return "", err
+		return "", fmt.Errorf("token is invalid")
 	}
 }
